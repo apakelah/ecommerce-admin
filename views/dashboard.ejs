@@ -1,0 +1,111 @@
+<%- include('partials/header') %>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1>Dashboard</h1>
+        <p class="lead">Welcome to E-Commerce Admin System</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Products</h5>
+                <h2 class="display-4"><%= stats.total_products %></h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Completed Orders</h5>
+                <h2 class="display-4"><%= stats.completed_orders %></h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">Cancelled Orders</h5>
+                <h2 class="display-4"><%= stats.cancelled_orders %></h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h4>Rp <%= parseInt(stats.total_revenue || 0).toLocaleString('id-ID') %></h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5>Recent Purchases</h5>
+            </div>
+            <div class="card-body">
+                <% if (recentPurchases.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Product</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentPurchases.forEach(purchase => { %>
+                            <tr>
+                                <td><small><%= purchase.kode_transaksi %></small></td>
+                                <td><%= purchase.nama_produk %></td>
+                                <td><%= purchase.nama_pembeli || 'N/A' %></td>
+                                <td>Rp <%= parseInt(purchase.total_harga).toLocaleString('id-ID') %></td>
+                                <td>
+                                    <% if (purchase.status === 'completed') { %>
+                                        <span class="badge bg-success">Completed</span>
+                                    <% } else if (purchase.status === 'cancelled') { %>
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    <% } else { %>
+                                        <span class="badge bg-warning">Pending</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                <% } else { %>
+                <p class="text-muted">No purchases yet.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/add-purchase" class="btn btn-primary">New Purchase</a>
+                    <a href="/products" class="btn btn-outline-primary">View Products</a>
+                    <a href="/purchases" class="btn btn-outline-success">View Purchases</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

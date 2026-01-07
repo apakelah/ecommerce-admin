@@ -1,0 +1,123 @@
+<%- include('partials/header') %>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4><i class="bi bi-cart-plus"></i> Add New Purchase</h4>
+            </div>
+            <div class="card-body">
+                <form action="/add-purchase" method="POST" id="purchaseForm">
+                    <div class="mb-3">
+                        <label for="produk_id" class="form-label">Select Product</label>
+                        <select class="form-select" id="produk_id" name="produk_id" required onchange="updateStock()">
+                            <option value="">-- Choose Product --</option>
+                            <% products.forEach(product => { %>
+                            <option value="<%= product.id %>" data-price="<%= product.harga %>">
+                                <%= product.nama_produk %> - Rp <%= product.harga.toLocaleString('id-ID') %>
+                            </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="jumlah" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="jumlah" name="jumlah" 
+                                   min="1" required oninput="calculateTotal()">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Available Stock</label>
+                            <div class="alert alert-info" id="stockInfo">
+                                Please select a product first
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nama_pembeli" class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" id="nama_pembeli" name="nama_pembeli" 
+                               placeholder="Enter customer name" required>
+                    </div>
+                    
+                    <div class="alert alert-warning" id="totalInfo" style="display: none;">
+                        <strong>Total Price: </strong><span id="totalPrice">0</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/purchases" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success" id="submitBtn">
+                            <i class="bi bi-check-circle"></i> Submit Purchase
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let productPrice = 0;
+    let currentStock = 0;
+    
+    async function updateStock() {
+        const productId = document.getElementById('produk_id').value;
+        const selectedOption = document.querySelector(`#produk_id option[value="${productId}"]`);
+        
+        if (productId) {
+            productPrice = parseFloat(selectedOption.getAttribute('data-price'));
+            
+            // Fetch stock from API
+            try {
+                const response = await fetch(`/api/stock/${productId}`);
+                const data = await response.json();
+                currentStock = data.stock;
+                
+                document.getElementById('stockInfo').innerHTML = `
+                    <strong>Available Stock:</strong> ${currentStock} units
+                    <span class="badge ${currentStock > 10 ? 'bg-success' : 'bg-danger'} ms-2">
+                        ${currentStock > 10 ? 'In Stock' : 'Low Stock'}
+                    </span>
+                `;
+                
+                // Update max quantity
+                document.getElementById('jumlah').max = currentStock;
+                calculateTotal();
+            } catch (error) {
+                document.getElementById('stockInfo').innerHTML = 
+                    '<span class="text-danger">Error loading stock</span>';
+            }
+        } else {
+            document.getElementById('stockInfo').innerHTML = 
+                'Please select a product first';
+        }
+    }
+    
+    function calculateTotal() {
+        const quantity = parseInt(document.getElementById('jumlah').value) || 0;
+        const total = productPrice * quantity;
+        
+        if (quantity > 0 && productPrice > 0) {
+            document.getElementById('totalInfo').style.display = 'block';
+            document.getElementById('totalPrice').textContent = 
+                `Rp ${total.toLocaleString('id-ID')}`;
+            
+            // Validate stock
+            if (quantity > currentStock) {
+                document.getElementById('totalInfo').className = 'alert alert-danger';
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('totalPrice').innerHTML += 
+                    ' <span class="badge bg-danger">Insufficient stock!</span>';
+            } else {
+                document.getElementById('totalInfo').className = 'alert alert-warning';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        } else {
+            document.getElementById('totalInfo').style.display = 'none';
+        }
+    }
+</script>
+
+<%- include('partials/footer') %>

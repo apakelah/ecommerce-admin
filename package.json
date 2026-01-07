@@ -1,0 +1,22 @@
+{
+  "name": "ecommerce-admin",
+  "version": "1.0.0",
+  "description": "Admin system for purchase management",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "setup-db": "sudo -u postgres psql ecommerce_db < database/ecommerce_postgres.sql"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.4",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^4.22.1",
+    "pg": "^8.16.3",
+    "pg-pool": "^3.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

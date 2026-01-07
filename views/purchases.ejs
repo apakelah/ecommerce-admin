@@ -1,0 +1,52 @@
+<%- include('partials/header') %>
+
+<h1 class="mb-4">Purchase History</h1>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Transaction Code</th>
+                <th>Product</th>
+                <th>Customer</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% purchases.forEach(purchase => { %>
+            <tr>
+                <td><code><%= purchase.kode_transaksi %></code></td>
+                <td><%= purchase.nama_produk %></td>
+                <td><%= purchase.nama_pembeli || 'N/A' %></td>
+                <td><%= purchase.jumlah %></td>
+                <td>Rp <%= parseInt(purchase.total_harga).toLocaleString('id-ID') %></td>
+                <td><%= new Date(purchase.tanggal_pembelian).toLocaleDateString('id-ID') %></td>
+                <td>
+                    <% if (purchase.status === 'completed') { %>
+                        <span class="badge bg-success">Completed</span>
+                    <% } else if (purchase.status === 'cancelled') { %>
+                        <span class="badge bg-danger">Cancelled</span>
+                    <% } else { %>
+                        <span class="badge bg-warning">Pending</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (purchase.status === 'completed') { %>
+                    <a href="/cancel-purchase/<%= purchase.id %>" class="btn btn-sm btn-outline-danger">
+                        Cancel
+                    </a>
+                    <% } else if (purchase.status === 'cancelled') { %>
+                    <span class="text-muted">Cancelled</span>
+                    <% } %>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+
+<%- include('partials/footer') %>

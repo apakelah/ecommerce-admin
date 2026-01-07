@@ -1,5 +1,323 @@
 <%- include('partials/header') %>
 
+<!-- Chatbot CSS -->
+<style>
+/* Chatbot Toggle Button */
+.chatbot-toggle-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    z-index: 1000;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.chatbot-toggle-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Chatbot Panel */
+.chatbot-panel {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 400px;
+    height: 550px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 1001;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chatbot-panel.active {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Chatbot Header */
+.chatbot-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chatbot-title i {
+    font-size: 22px;
+}
+
+.chatbot-title h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.close-chatbot {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.close-chatbot:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Chat Messages Area */
+.chatbot-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Messages */
+.message {
+    max-width: 85%;
+    animation: messageAppear 0.3s ease-out;
+}
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.bot {
+    align-self: flex-start;
+}
+
+.message.user {
+    align-self: flex-end;
+}
+
+.message-content {
+    padding: 14px 18px;
+    border-radius: 18px;
+    line-height: 1.5;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.message.bot .message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.message.user .message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.message-content ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.message-content li {
+    margin-bottom: 4px;
+}
+
+/* Chat Input Area */
+.chatbot-input {
+    padding: 16px 20px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.chatbot-input input {
+    flex: 1;
+    padding: 12px 18px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.chatbot-input input:focus {
+    border-color: #667eea;
+}
+
+.chatbot-input button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+}
+
+.chatbot-input button:hover {
+    transform: scale(1.05);
+}
+
+/* Chatbot Footer */
+.chatbot-footer {
+    padding: 12px 20px;
+    text-align: center;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* Quick Questions */
+.quick-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.quick-question-btn {
+    background: white;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.quick-question-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-1px);
+}
+
+/* Typing Indicator */
+.typing {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.typing span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #adb5bd;
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing span:nth-child(1) { animation-delay: -0.32s; }
+.typing span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+    0%, 80%, 100% { 
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Scrollbar Styling */
+.chatbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .chatbot-panel {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+        height: 70vh;
+        bottom: 80px;
+    }
+    
+    .chatbot-toggle-btn {
+        right: 20px;
+        bottom: 20px;
+        padding: 12px 20px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+</style>
+
 <div class="row">
     <div class="col-12 mb-4">
         <h1>Dashboard</h1>
@@ -107,5 +425,342 @@
         </div>
     </div>
 </div>
+
+<!-- Chatbot HTML -->
+<button id="chatbotToggle" class="chatbot-toggle-btn">
+    <i class="fas fa-robot"></i> AI Assistant
+</button>
+
+<div id="chatbotPanel" class="chatbot-panel">
+    <div class="chatbot-header">
+        <div class="chatbot-title">
+            <i class="fas fa-robot"></i>
+            <h3>E-Commerce AI Assistant</h3>
+        </div>
+        <button class="close-chatbot" id="closeChatbot">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="message bot">
+            <div class="message-content">
+                <p>👋 <strong>Halo! Saya AI Assistant khusus untuk dashboard e-commerce Anda.</strong></p>
+                <p>Saya sudah terhubung dengan data dashboard Anda dan siap membantu:</p>
+                <ul>
+                    <li>📊 <strong>Analisis data</strong> penjualan & performa</li>
+                    <li>💡 <strong>Rekomendasi</strong> strategi bisnis</li>
+                    <li>🚨 <strong>Identifikasi masalah</strong> & solusi</li>
+                    <li>📈 <strong>Prediksi</strong> & optimasi</li>
+                </ul>
+                <p>Apa yang bisa saya bantu analisis hari ini?</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chatbot-input">
+        <input type="text" id="chatbotInput" 
+               placeholder="Tanya tentang data dashboard Anda..." 
+               autocomplete="off">
+        <button id="sendMessage">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+    
+    <div class="chatbot-footer">
+        <small>Powered by DeepSeek AI • Real-time Dashboard Analysis</small>
+    </div>
+</div>
+
+<!-- Chatbot JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatbotToggle = document.getElementById('chatbotToggle');
+    const closeChatbot = document.getElementById('closeChatbot');
+    const chatbotPanel = document.getElementById('chatbotPanel');
+    const chatbotMessages = document.getElementById('chatbotMessages');
+    const chatbotInput = document.getElementById('chatbotInput');
+    const sendMessageBtn = document.getElementById('sendMessage');
+    
+    // API Configuration - GANTI DENGAN API KEY ANDA
+    const DEEPSEEK_API_KEY = 'sk-anda-di-sini'; // ← GANTI INI DENGAN API KEY ASLI!
+    const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+    
+    // Toggle chatbot
+    chatbotToggle.addEventListener('click', () => {
+        chatbotPanel.classList.add('active');
+        chatbotToggle.style.display = 'none';
+    });
+    
+    closeChatbot.addEventListener('click', () => {
+        chatbotPanel.classList.remove('active');
+        chatbotToggle.style.display = 'flex';
+    });
+    
+    // Send message to DeepSeek API
+    async function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message) return;
+        
+        // Add user message to UI
+        addMessageToChat(message, 'user');
+        chatbotInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        try {
+            // Get current dashboard data
+            const dashboardData = getDashboardData();
+            const recentPurchasesList = getRecentPurchasesData();
+            
+            // Prepare context for AI
+            const systemPrompt = `You are an AI assistant for an E-commerce Admin Dashboard. 
+            
+            CURRENT DASHBOARD DATA:
+            - Total Products: ${dashboardData.totalProducts}
+            - Completed Orders: ${dashboardData.completedOrders}
+            - Cancelled Orders: ${dashboardData.cancelledOrders}
+            - Total Revenue: ${dashboardData.totalRevenue}
+            
+            RECENT PURCHASES:
+            ${recentPurchasesList}
+            
+            Your role:
+            1. Analyze the e-commerce dashboard data
+            2. Provide business insights in Indonesian
+            3. Suggest improvements based on the data
+            4. Help with operational decisions
+            5. Give strategic recommendations
+            
+            Always respond in Indonesian. Be helpful, professional, and data-driven.`;
+            
+            // Call DeepSeek API
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: systemPrompt
+                        },
+                        { 
+                            role: 'user', 
+                            content: `Data dashboard saat ini: ${JSON.stringify(dashboardData)}. Pertanyaan: ${message}` 
+                        }
+                    ],
+                    max_tokens: 1000,
+                    temperature: 0.7,
+                    stream: false
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Remove typing indicator
+            removeTypingIndicator();
+            
+            if (data.choices && data.choices[0]) {
+                addMessageToChat(data.choices[0].message.content, 'bot');
+            } else {
+                addMessageToChat('Maaf, tidak mendapat respons dari AI. Coba lagi.', 'bot');
+            }
+            
+        } catch (error) {
+            console.error('API Error:', error);
+            removeTypingIndicator();
+            
+            // Fallback to simulated response if API fails
+            const simulatedResponse = getSimulatedResponse(message, getDashboardData());
+            addMessageToChat(simulatedResponse, 'bot');
+        }
+    }
+    
+    // Get current dashboard data from the page
+    function getDashboardData() {
+        try {
+            // Get data from dashboard cards
+            const cards = document.querySelectorAll('.card .display-4, .card h4');
+            
+            return {
+                totalProducts: cards[0]?.textContent?.trim() || '0',
+                completedOrders: cards[1]?.textContent?.trim() || '0',
+                cancelledOrders: cards[2]?.textContent?.trim() || '0',
+                totalRevenue: cards[3]?.textContent?.trim() || 'Rp 0'
+            };
+        } catch (error) {
+            return {
+                totalProducts: '<%= stats.total_products %>',
+                completedOrders: '<%= stats.completed_orders %>',
+                cancelledOrders: '<%= stats.cancelled_orders %>',
+                totalRevenue: 'Rp <%= parseInt(stats.total_revenue || 0).toLocaleString("id-ID") %>'
+            };
+        }
+    }
+    
+    // Get recent purchases data
+    function getRecentPurchasesData() {
+        try {
+            const purchases = [];
+            document.querySelectorAll('table tbody tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 5) {
+                    purchases.push({
+                        code: cells[0].textContent.trim(),
+                        product: cells[1].textContent.trim(),
+                        customer: cells[2].textContent.trim(),
+                        total: cells[3].textContent.trim(),
+                        status: cells[4].textContent.trim()
+                    });
+                }
+            });
+            
+            if (purchases.length > 0) {
+                return purchases.map(p => 
+                    `- ${p.code}: ${p.product} (${p.customer}) - ${p.total} - ${p.status}`
+                ).join('\n');
+            }
+            return 'Tidak ada transaksi terbaru.';
+        } catch (error) {
+            return 'Data transaksi tidak dapat diambil.';
+        }
+    }
+    
+    // Simulated response for fallback (if API fails)
+    function getSimulatedResponse(message, dashboardData) {
+        const lowerMessage = message.toLowerCase();
+        
+        // E-commerce specific responses
+        if (lowerMessage.includes('produk') || lowerMessage.includes('barang')) {
+            return `Anda memiliki ${dashboardData.totalProducts} produk. Rekomendasi:\n• Lakukan analisis produk terlaris\n• Perbarui stok secara rutin\n• Optimasi deskripsi produk`;
+        }
+        
+        if (lowerMessage.includes('batal') || lowerMessage.includes('cancelled')) {
+            return `Ada ${dashboardData.cancelledOrders} pesanan dibatalkan. Analisis:\n• Periksa alasan pembatalan\n• Optimasi proses checkout\n• Perbaiki sistem pembayaran\n• Tingkatkan customer support`;
+        }
+        
+        if (lowerMessage.includes('revenue') || lowerMessage.includes('pendapatan')) {
+            return `Revenue saat ini: ${dashboardData.totalRevenue}. Strategi peningkatan:\n• Promo bundling produk\n• Program loyalitas pelanggan\n• Upselling dan cross-selling\n• Optimasi harga berdasarkan kompetitor`;
+        }
+        
+        if (lowerMessage.includes('analisis') || lowerMessage.includes('analisa')) {
+            return `Analisis dashboard Anda:\n\n📊 **STATISTIK**\n• Produk: ${dashboardData.totalProducts}\n• Pesanan Selesai: ${dashboardData.completedOrders}\n• Pesanan Dibatalkan: ${dashboardData.cancelledOrders}\n• Revenue: ${dashboardData.totalRevenue}\n\n💡 **REKOMENDASI**\n1. Fokus kurangi pembatalan pesanan\n2. Tingkatkan konversi pembelian\n3. Diversifikasi produk\n4. Analisis pelanggan berulang`;
+        }
+        
+        if (lowerMessage.includes('rekomendasi') || lowerMessage.includes('saran')) {
+            return `Rekomendasi untuk dashboard e-commerce Anda:\n\n1. **Dashboard Improvement**\n• Tambahkan chart penjualan harian\n• Notifikasi real-time\n• Prediksi stok otomatis\n\n2. **Business Strategy**\n• Program referral pelanggan\n• Email marketing automation\n• Social media integration\n\n3. **Operational**\n• Automated reporting\n• Inventory alert system\n• Customer feedback collection`;
+        }
+        
+        return `Saya memahami pertanyaan Anda: "${message}".\n\nBerdasarkan data dashboard Anda:\n• Total Produk: ${dashboardData.totalProducts}\n• Pesanan Dibatalkan: ${dashboardData.cancelledOrders}\n• Revenue: ${dashboardData.totalRevenue}\n\nButuh analisis lebih spesifik tentang salah satu aspek?`;
+    }
+    
+    // UI Functions
+    function addMessageToChat(message, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.innerHTML = formatMessage(message);
+        
+        messageDiv.appendChild(messageContent);
+        chatbotMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    
+    function formatMessage(text) {
+        // Format simple markdown
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/^### (.*$)/gim, '<h4>$1</h4>')
+            .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^# (.*$)/gim, '<h2>$1</h2>')
+            .replace(/\n/g, '<br>')
+            .replace(/^- (.*?)(?=<br>|$)/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+            .replace(/\d+\.\s(.*?)(?=<br>|$)/gm, '<li>$1</li>');
+    }
+    
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot';
+        typingDiv.id = 'typingIndicator';
+        
+        typingDiv.innerHTML = `
+            <div class="message-content">
+                <div class="typing">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+        
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    // Event Listeners
+    sendMessageBtn.addEventListener('click', sendMessage);
+    
+    chatbotInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+    
+    // Add quick questions suggestions
+    setTimeout(() => {
+        const quickQuestions = [
+            "Analisis data pembatalan pesanan",
+            "Rekomendasi untuk meningkatkan revenue",
+            "Strategi mengurangi cancelled orders",
+            "Optimasi dashboard e-commerce",
+            "Prediksi penjualan bulan depan",
+            "Analisis performa produk"
+        ];
+        
+        const quickQuestionsDiv = document.createElement('div');
+        quickQuestionsDiv.className = 'quick-questions';
+        quickQuestionsDiv.innerHTML = `
+            <p style="font-size: 12px; color: #666; margin-bottom: 8px;">Pertanyaan cepat:</p>
+            ${quickQuestions.map(q => 
+                `<button class="quick-question-btn" data-question="${q}">${q}</button>`
+            ).join('')}
+        `;
+        
+        chatbotMessages.appendChild(quickQuestionsDiv);
+        
+        // Add event listeners to quick question buttons
+        document.querySelectorAll('.quick-question-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                chatbotInput.value = this.getAttribute('data-question');
+                sendMessage();
+            });
+        });
+    }, 3000);
+    
+    // Auto-open chatbot on page load (optional)
+    // setTimeout(() => {
+    //     chatbotPanel.classList.add('active');
+    //     chatbotToggle.style.display = 'none';
+    // }, 2000);
+});
+</script>
 
 <%- include('partials/footer') %>
